@@ -115,7 +115,7 @@ body{
 .knocker{
   position:absolute;
   left:28px;
-  top:88px;
+  top:70px;
   width:92px;
   height:92px;
   border-radius:22px;
@@ -417,7 +417,7 @@ button{
 
 
     <!-- BEFORE WELCOME: scene with door + lock -->
-    <div class="inner">
+   <div class="inner" id="pre">
       <div>
         <h1 id="title">敲敲门</h1>
         <p class="sub" id="subtitle">第一次来，请为我们家设置一个密码！以后每次回来就用这个密码啦～</p>
@@ -525,6 +525,7 @@ const card = el("card");
 const setup = el("setup");
 const login = el("login");
 const welcome = el("welcome");
+const pre = el("pre");
 
 const setupErr = el("setupErr");
 const loginErr = el("loginErr");
@@ -532,8 +533,11 @@ const loginErr = el("loginErr");
 function modeSetup(){
   el("title").textContent = "第一次来";
   el("subtitle").textContent = "请为我们家设置一个密码！以后每次回来就用这个密码啦～";
+
+  pre.style.display = "";            // ✅显示门口界面
   login.style.display = "none";
   welcome.style.display = "none";
+
   setup.style.display = "";
   setup.classList.remove("show");
   requestAnimationFrame(()=>setup.classList.add("show"));
@@ -542,8 +546,11 @@ function modeSetup(){
 function modeLogin(){
   el("title").textContent = "敲敲门";
   el("subtitle").textContent = "输入密码，开门。";
+
+  pre.style.display = "";
   setup.style.display = "none";
   welcome.style.display = "none";
+
   login.style.display = "";
   login.classList.remove("show");
   requestAnimationFrame(()=>login.classList.add("show"));
@@ -553,10 +560,13 @@ function modeLogin(){
 function modeWelcome(){
   setup.style.display = "none";
   login.style.display = "none";
+
+  pre.style.display = "none";
   welcome.style.display = "";
   welcome.classList.remove("show");
   requestAnimationFrame(()=>welcome.classList.add("show"));
 }
+
 
 async function init(){
   const hash = localStorage.getItem(KEY_HASH);
