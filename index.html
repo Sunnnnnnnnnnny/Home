@@ -86,6 +86,122 @@ body{
   justify-content:space-between;
   gap:12px;
 }
+/* cute nameplate */
+.nameplate{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:2px;
+  padding:10px 12px;
+  border-radius:14px;
+  background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.36));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+.plateTop{
+  font-weight:1000;
+  letter-spacing:.6px;
+  color: rgba(246,241,232,.92);
+  font-size:14px;
+}
+.plateSub{
+  font-size:11px;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  color: rgba(246,241,232,.62);
+}
+
+/* cat paw door knocker */
+.knocker{
+  position:absolute;
+  left:28px;
+  top:88px;
+  width:92px;
+  height:92px;
+  border-radius:22px;
+  background:
+    radial-gradient(120px 80px at 40% 20%, rgba(255,255,255,.10), rgba(255,255,255,0) 55%),
+    linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.32));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow: 0 18px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  color:transparent;
+  z-index: 5;
+}
+@media (max-width:560px){
+  .knocker{ left:18px; top:84px; width:84px; height:84px; }
+}
+
+.paw{
+  position:relative;
+  width:44px;
+  height:44px;
+}
+.paw .toe{
+  position:absolute;
+  width:12px; height:12px;
+  border-radius:999px;
+  background: linear-gradient(180deg, rgba(210,177,94,.98), rgba(176,138,46,.98));
+  box-shadow: 0 10px 16px rgba(0,0,0,.22);
+  opacity:.95;
+}
+.paw .t1{left:2px; top:0px}
+.paw .t2{left:16px; top:-4px}
+.paw .t3{left:30px; top:0px}
+.paw .t4{left:14px; top:8px; opacity:.88; transform:scale(.9)}
+.paw .pad{
+  position:absolute;
+  left:8px; top:16px;
+  width:28px; height:24px;
+  border-radius: 16px 16px 18px 18px;
+  background: linear-gradient(180deg, rgba(210,177,94,.98), rgba(176,138,46,.98));
+  box-shadow: 0 12px 18px rgba(0,0,0,.25);
+}
+
+.ring{
+  position:absolute;
+  width:36px; height:36px;
+  border-radius:999px;
+  border:4px solid rgba(210,177,94,.92);
+  box-shadow: 0 14px 22px rgba(0,0,0,.25);
+  transform: translateY(18px);
+  opacity:.95;
+}
+
+.knocker:active{ transform: translateY(1px); }
+
+/* dingdong bubble */
+.ding{
+  position:absolute;
+  left:132px;
+  top:104px;
+  padding:8px 10px;
+  border-radius:999px;
+  background: rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.12);
+  color: rgba(246,241,232,.86);
+  font-size:13px;
+  opacity:0;
+  transform: translateY(6px);
+  pointer-events:none;
+  transition: all .22s ease;
+}
+.ding.show{
+  opacity:1;
+  transform: translateY(0);
+}
+
+/* knock animation on the knocker + slight door glow */
+@keyframes knock{
+  0%{transform: translateY(0) rotate(0deg)}
+  25%{transform: translateY(2px) rotate(-4deg)}
+  55%{transform: translateY(0) rotate(3deg)}
+  100%{transform: translateY(0) rotate(0deg)}
+}
+.knock{ animation: knock .28s ease; }
+
 .tag{
   display:inline-flex; align-items:center; gap:10px;
   padding:10px 12px;
@@ -100,18 +216,11 @@ body{
   background: rgba(210,177,94,.95);
   box-shadow: 0 0 18px rgba(210,177,94,.45);
 }
-.houseNo{
-  font-weight:900;
-  letter-spacing:.6px;
-  color: rgba(246,241,232,.90);
-  padding:10px 12px;
-  border-radius:14px;
-  background: linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.35));
-  border:1px solid rgba(255,255,255,.10);
-}
 
 /* main content area */
 .inner{
+  position: relative;
+  z-index: 2;
   padding:16px 22px 22px 22px;
   display:grid;
   grid-template-columns: 1.2fr .95fr;
@@ -286,8 +395,26 @@ button{
 
     <div class="plaque">
       <span class="tag"><span class="dot"></span>这是大门口</span>
-      <span class="houseNo">HOME</span>
+
+      <div class="nameplate">
+        <span class="plateTop">我和你的家</span>
+        <span class="plateSub">welcome home</span>
+      </div>
     </div>
+
+    <button class="knocker" id="knocker" type="button" aria-label="猫爪门环：敲门">
+      <span class="paw" aria-hidden="true">
+        <span class="toe t1"></span>
+        <span class="toe t2"></span>
+        <span class="toe t3"></span>
+        <span class="toe t4"></span>
+        <span class="pad"></span>
+      </span>
+      <span class="ring" aria-hidden="true"></span>
+    </button>
+
+    <div class="ding" id="ding" aria-hidden="true">叮咚～</div>
+
 
     <!-- BEFORE WELCOME: scene with door + lock -->
     <div class="inner">
@@ -556,6 +683,26 @@ el("btnReset").addEventListener("click", ()=>{
 });
 
 init();
+const knocker = document.getElementById("knocker");
+const ding = document.getElementById("ding");
+
+knocker?.addEventListener("click", ()=>{
+  ding.classList.add("show");
+  setTimeout(()=>ding.classList.remove("show"), 650);
+
+
+  knocker.classList.remove("knock");
+  void knocker.offsetWidth;
+  knocker.classList.add("knock");
+
+  const sub = document.querySelector(".plateSub");
+if(sub){
+  const old = sub.textContent;
+  sub.textContent = "someone's home ✨";
+  setTimeout(()=>{ sub.textContent = old; }, 900);
+}
+});
+
 </script>
 </body>
 </html>
