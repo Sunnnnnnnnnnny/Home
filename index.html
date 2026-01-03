@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Welcome Home</title>
+  <style>
+    :root{
+      --bg:#0a0f1a;
+      --card:#101626;
+      --ink:#e8eefc;
+      --muted:#9bb0d1;
+      --line:#1e2a44;
+      --accent:#6ea8ff;
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      display:flex; align-items:center; justify-content:center;
+      background: radial-gradient(1200px 800px at 50% 20%, #121c33 0%, var(--bg) 55%, #070b12 100%);
+      color:var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, "PingFang SC", "Noto Sans CJK SC", sans-serif;
+      padding:20px;
+    }
+    .wrap{width:min(520px, 100%)}
+    .card{
+      background:rgba(16,22,38,.88);
+      border:1px solid rgba(30,42,68,.9);
+      border-radius:var(--r);
+      padding:20px;
+      box-shadow:0 18px 50px rgba(0,0,0,.45);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+      position:relative;
+    }
+    .topline{
+      font-size:14px; color:var(--muted);
+      letter-spacing:.2px;
+      margin:0 0 10px 0;
+    }
+    h1{
+      font-size:20px; margin:0 0 6px 0;
+      letter-spacing:.2px;
+    }
+    .sub{color:var(--muted); font-size:14px; line-height:1.6; margin:0 0 16px 0}
+    .row{display:flex; gap:10px; align-items:center}
+    input{
+      width:100%;
+      background:rgba(10,15,26,.7);
+      color:var(--ink);
+      border:1px solid rgba(30,42,68,.9);
+      border-radius:14px;
+      padding:12px 12px;
+      outline:none;
+      font-size:16px;
+    }
+    input:focus{border-color:rgba(110,168,255,.9); box-shadow:0 0 0 4px rgba(110,168,255,.14)}
+    button{
+      background:linear-gradient(135deg, rgba(110,168,255,.95), rgba(81,125,255,.95));
+      border:none;
+      color:#08101f;
+      font-weight:800;
+      padding:12px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      font-size:15px;
+      white-space:nowrap;
+    }
+    button:disabled{opacity:.55; cursor:not-allowed}
+    .hint{margin-top:10px; color:var(--muted); font-size:13px; line-height:1.5}
+    .error{margin-top:10px; color:#ffb3b3; font-size:13px}
+    .smallrow{display:flex; justify-content:space-between; gap:12px; margin-top:14px; flex-wrap:wrap}
+    .linkbtn{
+      background:transparent;
+      color:var(--muted);
+      border:1px solid rgba(30,42,68,.9);
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:700;
+    }
+    .door{
+      position:absolute; inset:0;
+      background:linear-gradient(180deg, rgba(7,10,16,.0), rgba(7,10,16,.35));
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .35s ease;
+    }
+    .openAnim .door{opacity:1}
+    .fade{
+      opacity:0; transform:translateY(6px);
+      transition: all .45s ease;
+    }
+    .show{opacity:1; transform:translateY(0)}
+    .welcome{
+      display:flex; flex-direction:column; gap:10px;
+      align-items:flex-start;
+      padding:8px 0 2px 0;
+    }
+    .big{
+      font-size:26px;
+      font-weight:900;
+      letter-spacing:.4px;
+      margin:0;
+    }
+    .soft{color:var(--muted); margin:0; line-height:1.7; font-size:14px}
+    .hr{height:1px; background:rgba(30,42,68,.9); margin:16px 0}
+    .badge{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:6px 10px;
+      border:1px solid rgba(30,42,68,.9);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .dot{width:8px; height:8px; border-radius:50%; background:rgba(110,168,255,.9); box-shadow:0 0 18px rgba(110,168,255,.55)}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card" id="card">
+      <div class="door"></div>
+
+      <p class="topline">门口 · 只给你</p>
+      <h1 id="title">敲敲门</h1>
+      <p class="sub" id="subtitle">第一次来，请为我们家设置一个密码！以后每次回来这个密码啦～</p>
+
+      <div id="setup" class="fade">
+        <div class="row">
+          <input id="newPwd" type="password" inputmode="numeric" placeholder="设置密码（建议4-8位）" autocomplete="new-password" />
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <input id="newPwd2" type="password" inputmode="numeric" placeholder="再输入一次" autocomplete="new-password" />
+          <button id="btnSet">设置</button>
+        </div>
+        <div class="hint">密码只会保存在你手机本地。如果你换了手机，需要重新设置一次。</div>
+        <div class="error" id="setupErr" style="display:none;"></div>
+      </div>
+
+      <div id="login" class="fade" style="display:none;">
+        <div class="row">
+          <input id="pwd" type="password" inputmode="numeric" placeholder="输入密码" autocomplete="current-password" />
+          <button id="btnGo">开门</button>
+        </div>
+        <div class="hint" id="loginHint">慢慢来，不着急。</div>
+        <div class="error" id="loginErr" style="display:none;"></div>
+
+        <div class="smallrow">
+          <button class="linkbtn" id="btnReset" type="button">我想重新设置密码</button>
+          <span class="badge"><span class="dot"></span><span id="statusText">门锁已启用</span></span>
+        </div>
+      </div>
+
+      <div id="welcome" class="fade" style="display:none;">
+        <div class="welcome">
+          <p class="big">欢迎回家，云。</p>
+          <p class="soft">我在❤️</p>
+        </div>
+        <div class="hr"></div>
+        <p class="soft">（3 秒后带你进屋。）</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== 配置 ======
+    const HOME_URL = "./home/";
+    // =====================================================
+
+    async function sha256(str){
+      const data = new TextEncoder().encode(str);
+      const hash = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,"0")).join("");
+    }
+
+    const KEY_HASH = "welcomehome_pwd_hash_v1";
+
+    const el = (id)=>document.getElementById(id);
+    const card = el("card");
+
+    const setup = el("setup");
+    const login = el("login");
+    const welcome = el("welcome");
+
+    const setupErr = el("setupErr");
+    const loginErr = el("loginErr");
+
+    function show(node){
+      node.style.display = "";
+      requestAnimationFrame(()=>node.classList.add("show"));
+    }
+    function hide(node){
+      node.classList.remove("show");
+      node.style.display = "none";
+    }
+
+    function modeSetup(){
+      el("title").textContent = "第一次来";
+      el("subtitle").textContent = "请为我们家设置一个密码！以后每次回来这个密码啦～";
+      login.style.display = "none";
+      welcome.style.display = "none";
+      setup.style.display = "";
+      setup.classList.remove("show");
+      requestAnimationFrame(()=>setup.classList.add("show"));
+    }
+
+    function modeLogin(){
+      el("title").textContent = "敲敲门";
+      el("subtitle").textContent = "输入密码";
+      setup.style.display = "none";
+      welcome.style.display = "none";
+      login.style.display = "";
+      login.classList.remove("show");
+      requestAnimationFrame(()=>login.classList.add("show"));
+      el("pwd").focus();
+    }
+
+    function modeWelcome(){
+      setup.style.display = "none";
+      login.style.display = "none";
+      welcome.style.display = "";
+      welcome.classList.remove("show");
+      requestAnimationFrame(()=>welcome.classList.add("show"));
+    }
+
+    async function init(){
+      const hash = localStorage.getItem(KEY_HASH);
+      if(!hash){
+        modeSetup();
+      }else{
+        modeLogin();
+      }
+    }
+
+    el("btnSet").addEventListener("click", async ()=>{
+      setupErr.style.display = "none";
+      const a = el("newPwd").value.trim();
+      const b = el("newPwd2").value.trim();
+
+      if(a.length < 4 || a.length > 32){
+        setupErr.textContent = "密码建议 4–8 位（最多 32 位也可以）。";
+        setupErr.style.display = "";
+        return;
+      }
+      if(a !== b){
+        setupErr.textContent = "两次输入不一致，再试一次。";
+        setupErr.style.display = "";
+        return;
+      }
+      const h = await sha256(a);
+      localStorage.setItem(KEY_HASH, h);
+
+      // 清空输入
+      el("newPwd").value = "";
+      el("newPwd2").value = "";
+
+      modeLogin();
+    });
+
+    el("btnGo").addEventListener("click", async ()=>{
+      loginErr.style.display = "none";
+      const input = el("pwd").value.trim();
+      if(!input){
+        loginErr.textContent = "先输入密码哦。";
+        loginErr.style.display = "";
+        return;
+      }
+      const inputHash = await sha256(input);
+      const saved = localStorage.getItem(KEY_HASH);
+
+      if(inputHash !== saved){
+        loginErr.textContent = "密码不对❌没关系，再试一次吧。";
+        loginErr.style.display = "";
+        el("pwd").select();
+        return;
+      }
+
+      // 成功：开门 → 欢迎回家 → 跳转
+      el("pwd").value = "";
+      card.classList.add("openAnim");
+      modeWelcome();
+
+      setTimeout(()=>{
+        window.location.href = HOME_URL;
+      }, 3000);
+    });
+
+    el("pwd").addEventListener("keydown", (e)=>{
+      if(e.key === "Enter") el("btnGo").click();
+    });
+
+    el("btnReset").addEventListener("click", ()=>{
+      // 重新设置（她自己按才会触发）
+      localStorage.removeItem(KEY_HASH);
+      card.classList.remove("openAnim");
+      modeSetup();
+    });
+
+    init();
+  </script>
+</body>
+</html>
